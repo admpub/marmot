@@ -1,4 +1,4 @@
-// 
+//
 // 	Copyright 2017 by marmot author: gdccmcm14@live.com.
 // 	Licensed under the Apache License, Version 2.0 (the "License");
 // 	you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@ import (
 	"net/url"
 )
 
-// Global Worker
+// DefaultWorker Global Worker
 var DefaultWorker *Worker
 
 func init() {
-	UaInit()
+	UserAgentInit()
 
 	// New a Worker
 	worker := new(Worker)
@@ -36,16 +36,16 @@ func init() {
 
 }
 
-// This make effect only your Worker exec serial! Attention!
+// ToString This make effect only your Worker exec serial! Attention!
 // Change Your Raw data To string
 func ToString() string {
 	return DefaultWorker.ToString()
 }
 
-// This make effect only your Worker exec serial! Attention!
+// JSONToString This make effect only your Worker exec serial! Attention!
 // Change Your JSON'like Raw data to string
-func JsonToString() (string, error) {
-	return DefaultWorker.JsonToString()
+func JSONToString() (string, error) {
+	return DefaultWorker.JSONToString()
 }
 
 func Get() (body []byte, e error) {
@@ -76,8 +76,8 @@ func PostJSON() (body []byte, e error) {
 	return DefaultWorker.PostJSON()
 }
 
-func PostFILE() (body []byte, e error) {
-	return DefaultWorker.PostFILE()
+func PostFile() (body []byte, e error) {
+	return DefaultWorker.PostFile()
 }
 
 func PostXML() (body []byte, e error) {
@@ -91,8 +91,8 @@ func PutJSON() (body []byte, e error) {
 	return DefaultWorker.PutJSON()
 }
 
-func PutFILE() (body []byte, e error) {
-	return DefaultWorker.PutFILE()
+func PutFile() (body []byte, e error) {
+	return DefaultWorker.PutFile()
 }
 
 func PutXML() (body []byte, e error) {

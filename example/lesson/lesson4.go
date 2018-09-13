@@ -1,4 +1,4 @@
-// 
+//
 // 	Copyright 2017 by marmot author: gdccmcm14@live.com.
 // 	Licensed under the Apache License, Version 2.0 (the "License");
 // 	you may not use this file except in compliance with the License.
@@ -18,14 +18,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hunterhug/marmot/expert"
-	"github.com/hunterhug/marmot/miner"
+	"github.com/admpub/marmot/expert"
+	"github.com/admpub/marmot/miner"
 )
 
 func main() {
-	// We can debug, to see whether SetBeforeAction make sense
-	miner.SetLogLevel(miner.DEBUG)
-
 	// The url we want
 	url := "https://www.whitehouse.gov"
 
@@ -60,7 +57,7 @@ func main() {
 	})
 
 	// Let's Go
-	body, err := worker.SetUrl(url).GoByMethod(miner.GET)
+	body, err := worker.SetURL(url).GoByMethod(miner.GET)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {

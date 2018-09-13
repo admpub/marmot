@@ -1,4 +1,4 @@
-// 
+//
 // 	Copyright 2017 by marmot author: gdccmcm14@live.com.
 // 	Licensed under the Apache License, Version 2.0 (the "License");
 // 	you may not use this file except in compliance with the License.
@@ -14,13 +14,11 @@
 package miner
 
 import (
+	"log"
 	"testing"
 )
 
 func TestWorker(t *testing.T) {
-	// Global log record
-	SetLogLevel("debug")
-
 	// GLOBAL TIMEOUT
 	SetGlobalTimeout(3)
 
@@ -39,14 +37,14 @@ func TestWorker(t *testing.T) {
 	// wait times,can zero
 	worker.SetWaitTime(1)
 	// which url fetch
-	worker.SetUrl("http://www.cjhug.me")
+	worker.SetURL("http://www.cjhug.me")
 
-	//worker.SetUa(spider.RandomUa())
+	//worker.SetUserAgent(spider.RandomUserAgent())
 
 	// go!fetch url --||
 	body, err := worker.Go()
 	if err != nil {
-		Log().Error(err.Error())
+		log.Println(err.Error())
 	} else {
 		// bytes get!
 		// fmt.Printf("%s", string(body))
@@ -54,5 +52,5 @@ func TestWorker(t *testing.T) {
 
 	// if filesize small than 500KB
 	err = TooSortSizes(body, 500)
-	Log().Error(err.Error())
+	log.Println(err.Error())
 }

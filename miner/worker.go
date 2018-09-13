@@ -1,4 +1,4 @@
-// 
+//
 // 	Copyright 2017 by marmot author: gdccmcm14@live.com.
 // 	Licensed under the Apache License, Version 2.0 (the "License");
 // 	you may not use this file except in compliance with the License.
@@ -15,17 +15,20 @@ package miner
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
-	"github.com/hunterhug/parrot/util"
 	"mime/multipart"
+
+	"github.com/admpub/log"
 )
 
-// New a worker, if ipstring is a proxy address, New a proxy client.
+// NewWorker New a worker, if ipstring is a proxy address, New a proxy client.
 // Proxy address such as:
 // 		http://[user]:[password@]ip:port, [] stand it can choose or not. case: socks5://127.0.0.1:1080
 func NewWorker(ipstring interface{}) (*Worker, error) {
@@ -38,21 +41,19 @@ func NewWorker(ipstring interface{}) (*Worker, error) {
 		worker.Client = client
 		worker.Ipstring = ipstring.(string)
 		return worker, err
-	} else {
-		client, err := NewClient()
-		worker.Client = client
-		worker.Ipstring = "localhost"
-		return worker, err
 	}
-
+	client, err := NewClient()
+	worker.Client = client
+	worker.Ipstring = "localhost"
+	return worker, err
 }
 
-// Alias Name for NewWorker
+// New Alias Name for NewWorker
 func New(ipstring interface{}) (*Worker, error) {
 	return NewWorker(ipstring)
 }
 
-// New Worker by Your Client
+// NewWorkerByClient New Worker by Your Client
 func NewWorkerByClient(client *http.Client) *Worker {
 	worker := new(Worker)
 	worker.Header = http.Header{}
@@ -61,18 +62,18 @@ func NewWorkerByClient(client *http.Client) *Worker {
 
 	// API must can set timeout
 	if DefaultTimeOut != 0 {
-		client.Timeout = util.Second(DefaultTimeOut)
+		client.Timeout = time.Second * time.Duration(DefaultTimeOut)
 	}
 	worker.Client = client
 	return worker
 }
 
-// New API Worker, No Cookie Keep.
+// NewAPI New API Worker, No Cookie Keep.
 func NewAPI() *Worker {
 	return NewWorkerByClient(NoCookieClient)
 }
 
-// Auto decide which method, Default Get.
+// Go Auto decide which method, Default Get.
 func (worker *Worker) Go() (body []byte, e error) {
 	switch strings.ToUpper(worker.Method) {
 	case POST:
@@ -82,7 +83,7 @@ func (worker *Worker) Go() (body []byte, e error) {
 	case POSTXML:
 		return worker.PostXML()
 	case POSTFILE:
-		return worker.PostFILE()
+		return worker.PostFile()
 	case PUT:
 		return worker.Put()
 	case PUTJSON:
@@ -90,7 +91,7 @@ func (worker *Worker) Go() (body []byte, e error) {
 	case PUTXML:
 		return worker.PutXML()
 	case PUTFILE:
-		return worker.PutFILE()
+		return worker.PutFile()
 	case DELETE:
 		return worker.Delete()
 	case OTHER:
@@ -104,7 +105,7 @@ func (worker *Worker) GoByMethod(method string) (body []byte, e error) {
 	return worker.SetMethod(method).Go()
 }
 
-// This make effect only your worker exec serial! Attention!
+// ToString This make effect only your worker exec serial! Attention!
 // Change Your Raw data To string
 func (worker *Worker) ToString() string {
 	if worker.Raw == nil {
@@ -113,13 +114,13 @@ func (worker *Worker) ToString() string {
 	return string(worker.Raw)
 }
 
-// This make effect only your worker exec serial! Attention!
+// JSONToString This make effect only your worker exec serial! Attention!
 // Change Your JSON'like Raw data to string
-func (worker *Worker) JsonToString() (string, error) {
+func (worker *Worker) JSONToString() (string, error) {
 	if worker.Raw == nil {
 		return "", nil
 	}
-	temp, err := util.JsonBack(worker.Raw)
+	temp, err := json.Marshal(worker.Raw)
 	if err != nil {
 		return "", err
 	}
@@ -143,13 +144,13 @@ func (worker *Worker) sent(method, contentType string, binary bool) (body []byte
 	}
 
 	// For debug
-	Logger.Debugf("[GoWorker] %s %s", method, worker.Url)
+	log.Debugf("[GoWorker] %s %s", method, worker.Url)
 
 	// New a Request
 	var request = &http.Request{}
 
 	// If binary parm value is true and BData is not empty
-	// suit for POSTJSON(), POSTFILE()
+	// suit for POSTJSON(), PostFile()
 	if len(worker.BData) != 0 && binary {
 		pr := ioutil.NopCloser(bytes.NewReader(worker.BData))
 		request, _ = http.NewRequest(method, worker.Url, pr)
@@ -202,7 +203,7 @@ func (worker *Worker) sent(method, contentType string, binary bool) (body []byte
 
 	// Debug
 	OutputMaps("Response header", response.Header)
-	Logger.Debugf("[GoWorker] %v %s", response.Proto, response.Status)
+	log.Debugf("[GoWorker] %v %s", response.Proto, response.Status)
 
 	// Read output
 	body, e = ioutil.ReadAll(response.Body)
@@ -250,7 +251,7 @@ func (worker *Worker) PostXML() (body []byte, e error) {
 	return worker.sent(POST, HTTPXMLContentType, true)
 }
 
-func (worker *Worker) PostFILE() (body []byte, e error) {
+func (worker *Worker) PostFile() (body []byte, e error) {
 	return worker.sentFile(POST)
 
 }
@@ -275,12 +276,12 @@ func (worker *Worker) sentFile(method string) ([]byte, error) {
 	contentType := bodyWriter.FormDataContentType()
 	bodyWriter.Close()
 
-	worker.SetBData(bodyBuf.Bytes())
+	worker.SetBin(bodyBuf.Bytes())
 
 	return worker.sent(method, contentType, true)
 }
 
-// Put
+// Put .
 func (worker *Worker) Put() (body []byte, e error) {
 	return worker.sent(PUT, HTTPFORMContentType, false)
 }
@@ -293,7 +294,7 @@ func (worker *Worker) PutXML() (body []byte, e error) {
 	return worker.sent(PUT, HTTPXMLContentType, true)
 }
 
-func (worker *Worker) PutFILE() (body []byte, e error) {
+func (worker *Worker) PutFile() (body []byte, e error) {
 	return worker.sentFile(PUT)
 
 }

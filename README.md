@@ -43,14 +43,14 @@ package main
 import (
 	"fmt"
 
-	"github.com/hunterhug/marmot/miner"
+	"github.com/admpub/marmot/miner"
 )
 
 func main() {
 	// Use Default Worker, You can Also New One:
 	// worker:=miner.New(nil)
 	miner.SetLogLevel(miner.DEBUG)
-	_, err := miner.SetUrl("https://www.whitehouse.gov").Go()
+	_, err := miner.SetURL("https://www.whitehouse.gov").Go()
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -64,14 +64,14 @@ func main() {
 You can get it by:
 
 ```
-go get -v github.com/hunterhug/marmot/miner
+go get -v github.com/admpub/marmot/miner
 ```
 
 Or make your `GOPATH` sub dir: `/src/github.com/hunterhug`, and
 
 ```
 cd src/github.com/hunterhug
-git clone https://github.com/hunterhug/marmot
+git clone https://github.com/admpub/marmot
 ```
 
 Suggest Golang1.8+
@@ -89,14 +89,14 @@ package main
 import (
 	"fmt"
 
-	"github.com/hunterhug/marmot/miner"
+	"github.com/admpub/marmot/miner"
 )
 
 func main() {
 	// 1. New a worker
 	worker, _ := miner.New(nil)
 	// 2. Set a URL And Fetch
-	html, err := worker.SetUrl("https://www.whitehouse.gov").SetUa(miner.RandomUa()).SetMethod(miner.GET).Go()
+	html, err := worker.SetURL("https://www.whitehouse.gov").SetUserAgent(miner.RandomUserAgent()).SetMethod(miner.GET).Go()
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -114,8 +114,8 @@ package main
 
 import (
 	// 1:import package
-	"github.com/hunterhug/marmot/miner"
-	"github.com/hunterhug/parrot/util"
+	"github.com/admpub/marmot/miner"
+	"github.com/admpub/log"
 )
 
 func init() {
@@ -127,8 +127,6 @@ func init() {
 
 func main() {
 
-	log := miner.Log() // optional, miner log you can choose to use
-
 	// 3: Must new a Worker object, three ways
 	//worker, err := miner.NewWorker("http://smart:smart2016@104.128.121.46:808") // proxy format: protocol://user(optional):password(optional)@ip:port
 	//worker, err := miner.NewWorker(nil)  // normal worker, default keep Cookie
@@ -138,24 +136,24 @@ func main() {
 		panic(err)
 	}
 
-	// 4: Set the request Method/URL and some others, can chain set, only SetUrl is required.
-	// SetUrl: required, the Url
+	// 4: Set the request Method/URL and some others, can chain set, only SetURL is required.
+	// SetURL: required, the Url
 	// SetMethod: optional, HTTP method: POST/GET/..., default GET
 	// SetWaitTime: optional, HTTP request wait/pause time
-	worker.SetUrl("http://cjhug.me/fuck.html").SetMethod(miner.GET).SetWaitTime(2)
-	worker.SetUa(miner.RandomUa())                // optional, browser user agent: IE/Firefox...
+	worker.SetURL("http://cjhug.me/fuck.html").SetMethod(miner.GET).SetWaitTime(2)
+	worker.SetUserAgent(miner.RandomUserAgent())                // optional, browser user agent: IE/Firefox...
 	worker.SetRefer("https://www.whitehouse.gov") // optional, url refer
 	worker.SetHeaderParm("diyheader", "lenggirl") // optional, some other diy http header
-	//worker.SetBData([]byte("file data"))    // optional, if you want post JSON data or upload file
+	//worker.SetBin([]byte("file data"))    // optional, if you want post JSON data or upload file
 	//worker.SetFormParm("username","jinhan") // optional: if you want post form
 	//worker.SetFormParm("password","123")
 
 	// 5: Start Run
 	//worker.Get()             // default GET
 	//worker.Post()            // POST form request data, data can fill by SetFormParm()
-	//worker.PostJSON()        // POST JSON dara, use SetBData()
-	//worker.PostXML()         // POST XML, use SetBData()
-	//worker.PostFILE()        // POST to Upload File, data in SetBData() too
+	//worker.PostJSON()        // POST JSON dara, use SetBin()
+	//worker.PostXML()         // POST XML, use SetBin()
+	//worker.PostFile()        // POST to Upload File, data in SetBin() too
 	//worker.OtherGo("OPTIONS", "application/x-www-form-urlencoded") // Other http method, Such as OPTIONS etcd
 	body, err := worker.Go() // if you use SetMethod(), otherwise equal to Get()
 	if err != nil {
@@ -166,7 +164,7 @@ func main() {
 
 	log.Debugf("%#v", worker.GetCookies) // if you not set log as debug, it will not appear
 
-	// You must Clear it! If you want to POST Data by SetFormParm()/SetBData() again
+	// You must Clear it! If you want to POST Data by SetFormParm()/SetBin() again
 	// After get the return data by post data, you can clear the data you fill
 	worker.Clear()
 	//worker.ClearAll() // you can also want to clear all, include http header you set
@@ -175,7 +173,7 @@ func main() {
 	miner.Pool.Set("myfirstworker", worker)
 	if w, ok := miner.Pool.Get("myfirstworker"); ok {
 		go func() {
-			data, _ := w.SetUrl("http://cjhug.me/fuck.html").Get()
+			data, _ := w.SetURL("http://cjhug.me/fuck.html").Get()
 			log.Info(string(data))
 		}()
 		util.Sleep(10)
@@ -195,14 +193,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hunterhug/marmot/expert"
-	"github.com/hunterhug/marmot/miner"
+	"github.com/admpub/marmot/expert"
+	"github.com/admpub/marmot/miner"
 )
 
 func main() {
-	// We can debug, to see whether SetBeforeAction make sense
-	miner.SetLogLevel(miner.DEBUG)
-
 	// The url we want
 	url := "https://www.whitehouse.gov"
 
@@ -237,7 +232,7 @@ func main() {
 	})
 
 	// Let's Go
-	body, err := worker.SetUrl(url).GoByMethod(miner.GET)
+	body, err := worker.SetURL(url).GoByMethod(miner.GET)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -262,7 +257,7 @@ func parse(data []byte) string {
 
 ```
 
-Easy to use, you just need to `New` one `Worker`, and `SetUrl`, then make some settings and `worker.Go()`.
+Easy to use, you just need to `New` one `Worker`, and `SetURL`, then make some settings and `worker.Go()`.
 
 ### 3.1 The First Step
 
@@ -277,13 +272,13 @@ There are four kinds of worker:
 
 Camouflage our worker:
 
-1. `worker.SetUrl("https://www.whitehouse.gov")`  // required: set url you want to
+1. `worker.SetURL("https://www.whitehouse.gov")`  // required: set url you want to
 2. `worker.SetMethod(miner.GET)`  // optional: set http method `POST/GET/PUT/POSTJSON` and so on
 3. `worker.SetWaitTime(2)`                         // optional: set timeout of http request
-4. `worker.SetUa(miner.RandomUa())`                 // optional: set http browser user agent, you can see miner/config/ua.txt
+4. `worker.SetUserAgent(miner.RandomUserAgent())`                 // optional: set http browser user agent, you can see miner/config/ua.txt
 5. `worker.SetRefer("https://www.whitehouse.gov")`       // optional: set http request Refer
 6. `worker.SetHeaderParm("diyheader", "lenggirl")` // optional: set http diy header
-7. `worker.SetBData([]byte("file data"))` // optional: set binary data for post or put
+7. `worker.SetBin([]byte("file data"))` // optional: set binary data for post or put
 8. `worker.SetFormParm("username","jinhan")` // optional: set form data for post or put 
 9. `worker.SetCookie("xx=dddd")` // optional: you can set a init cookie, some website you can login and F12 copy the cookie
 10. `worker.SetCookieByFile("/root/cookie.txt")` // optional: set cookie which store in a file
@@ -295,14 +290,14 @@ Run our worker:
 1. `body, err := worker.Go()` // if you use SetMethod(), auto use following ways, otherwise use Get()
 2. `body, err := worker.Get()` // default
 3. `body, err := worker.Post()` // post form request, data fill by SetFormParm()
-4. `body, err := worker.PostJSON()` // post JSON request, data fill by SetBData()
-5. `body, err := worker.PostXML()` // post XML request, data fill by SetBData()
-6. `body, err := worker.PostFILE()` // upload file, data fill by SetBData(), and should set SetFileInfo(fileName, fileFormName string)
+4. `body, err := worker.PostJSON()` // post JSON request, data fill by SetBin()
+5. `body, err := worker.PostXML()` // post XML request, data fill by SetBin()
+6. `body, err := worker.PostFile()` // upload file, data fill by SetBin(), and should set SetFileInfo(fileName, fileFormName string)
 7. `body, err := worker.Delete()` // you know!
 8. `body, err := worker.Put()` // ones http method...
 9. `body, err := worker.PutJSON()` // put JSON request
 10. `body, err := worker.PutXML()`
-11. `body, err := worker.PutFILE()`
+11. `body, err := worker.PutFile()`
 12. `body, err := worker.OtherGo("OPTIONS", "application/x-www-form-urlencoded")` // Other http method, Such as OPTIONS etc., can not sent binary.
 13. `body, err := worker.OtherGoBinary("OPTIONS", "application/x-www-form-urlencoded")` // Other http method, Such as OPTIONS etc., just sent binary.
 14. `body, err := worker.GoByMethod("POST")` // you can override SetMethod() By this, equal SetMethod() then Go()

@@ -7,5 +7,7 @@ example/helloworld/data/*.html
 test/
 data/
 example/huaban/data/
-example/music/songs_dir/*
 vendor/github.com/go-xorm/*
+example/practice/music/songs_dir
+example/practice/pictures/picture
+example/practice/upload/*.xxxx

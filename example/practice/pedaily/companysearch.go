@@ -1,4 +1,4 @@
-// 
+//
 // 	Copyright 2017 by marmot author: gdccmcm14@live.com.
 // 	Licensed under the Apache License, Version 2.0 (the "License");
 // 	you may not use this file except in compliance with the License.
@@ -16,14 +16,16 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"math"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/hunterhug/marmot/expert"
-	"github.com/hunterhug/marmot/miner"
-	"github.com/hunterhug/parrot/util"
+	"github.com/admpub/marmot/expert"
+	"github.com/admpub/marmot/miner"
+	"github.com/webx-top/com"
 )
 
 var client *miner.Worker
@@ -63,9 +65,9 @@ func initx() {
 		panic(e.Error())
 	}
 
-	util.MakeDir(dir)
-	util.MakeDir(dirresult)
-	util.MakeDir(dirdetail)
+	os.MkdirAll(dir, os.ModePerm)
+	os.MkdirAll(dirresult, os.ModePerm)
+	os.MkdirAll(dirdetail, os.ModePerm)
 }
 func mainx() {
 	inputReader := bufio.NewReader(os.Stdin)
@@ -79,7 +81,7 @@ func mainx() {
 			fmt.Println(err.Error())
 			continue
 		}
-		e := util.MakeDir(dir + "/" + keyword)
+		e := os.MkdirAll(dir+"/"+keyword, os.ModePerm)
 		if e != nil {
 			fmt.Println(e.Error())
 		}
@@ -95,7 +97,7 @@ func mainx() {
 		} else {
 			num := int(math.Ceil(float64(numt) / 20.0))
 			for i := 2; i <= num; i++ {
-				temp, _, e := featchcompany(keyword + "/" + util.IS(i))
+				temp, _, e := featchcompany(keyword + "/" + strconv.Itoa(i))
 				if e != nil {
 					fmt.Println(e.Error())
 				} else {
@@ -114,7 +116,7 @@ func mainx() {
 				txt = append(txt, stemp)
 			}
 
-			e := util.SaveToFile(dirresult+"/"+keyword+".csv", []byte(strings.Join(txt, "\n")))
+			e := ioutil.WriteFile(dirresult+"/"+keyword+".csv", []byte(strings.Join(txt, "\n")), os.ModePerm)
 			if e != nil {
 				fmt.Println(e.Error())
 			}
@@ -137,12 +139,12 @@ func detail(url string) map[string]string {
 		"desc":    "", //简介
 		"contact": "", //联系方式
 	}
-	hashmd := util.Md5(url)
+	hashmd := com.Md5(url)
 	keep := dirdetail + "/" + hashmd + ".html"
 	body := []byte("")
 	var e error = nil
-	if util.FileExist(keep) {
-		body, e = util.ReadfromFile(keep)
+	if _, err := os.Stat(keep); os.IsExist(err) {
+		body, e = ioutil.ReadFile(keep)
 	} else {
 		client.Url = url
 		body, e = client.Get()
@@ -150,7 +152,7 @@ func detail(url string) map[string]string {
 	if e != nil {
 		return returnmap
 	}
-	util.SaveToFile(keep, body)
+	ioutil.WriteFile(keep, body, os.ModePerm)
 	doc, e := expert.QueryBytes(body)
 	if e != nil {
 		return returnmap
@@ -212,10 +214,10 @@ func featchcompany(keyword string) ([]map[string]string, int, error) {
 	returnmap := []map[string]string{}
 	url := "http://zdb.pedaily.cn/company/w" + keyword
 	rootdir := strings.Split(keyword, "/")[0]
-	hashmd := util.Md5(url)
+	hashmd := com.Md5(url)
 	keep := dir + "/" + rootdir + "/" + hashmd + ".html"
-	if util.FileExist(keep) {
-		dudu, _ := util.ReadfromFile(keep)
+	if _, err := os.Stat(keep); os.IsExist(err) {
+		dudu, _ := ioutil.ReadFile(keep)
 		return parsecompany(dudu)
 	}
 	fmt.Printf("featch:%s\n", url)
@@ -224,7 +226,7 @@ func featchcompany(keyword string) ([]map[string]string, int, error) {
 	if err != nil {
 		return returnmap, 0, err
 	}
-	e := util.SaveToFile(keep, body)
+	e := ioutil.WriteFile(keep, body, os.ModePerm)
 	if e != nil {
 		fmt.Println(url + ":" + e.Error())
 	}
@@ -238,7 +240,7 @@ func parsecompany(body []byte) ([]map[string]string, int, error) {
 		return returnmap, 0, e
 	}
 	total := d.Find(".total").Text()
-	num, e := util.SI(total)
+	num, e := strconv.Atoi(total)
 	if e != nil {
 		return returnmap, 0, nil
 	}

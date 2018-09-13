@@ -1,4 +1,4 @@
-// 
+//
 // 	Copyright 2017 by marmot author: gdccmcm14@live.com.
 // 	Licensed under the Apache License, Version 2.0 (the "License");
 // 	you may not use this file except in compliance with the License.
@@ -16,15 +16,18 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"math"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/hunterhug/marmot/expert"
-	"github.com/hunterhug/marmot/miner"
-	"github.com/hunterhug/parrot/util"
+	"github.com/admpub/marmot/expert"
+	"github.com/admpub/marmot/miner"
+	"github.com/webx-top/com"
 )
 
 var tclient *miner.Worker
@@ -35,9 +38,6 @@ func main() {
 	dudu()
 	inittouzi()
 	tmain()
-	//b, _ := util.ReadfromFile(tresult + "/3392.html")
-	//l := parsetouzi(b)
-	//fmt.Printf("%#v", l)
 }
 
 func parset(body []byte) ([]string, string) {
@@ -62,8 +62,8 @@ func inittouzi() {
 		panic(e.Error())
 	}
 
-	util.MakeDir(tresult)
-	util.MakeDir(traw)
+	os.MkdirAll(tresult, os.ModePerm)
+	os.MkdirAll(traw, os.ModePerm)
 }
 func tmain() {
 	inputReader := bufio.NewReader(os.Stdin)
@@ -87,9 +87,9 @@ func tmain() {
 		urls := []string{}
 		loop := []string{}
 		loop = append(loop, "y-2004")
-		tyear, _ := util.SI(util.TodayString(1))
+		tyear, _ := strconv.Atoi(time.Now().Format(`2006`))
 		for i := 2014; i <= tyear; i++ {
-			loop = append(loop, "y"+util.IS(i))
+			loop = append(loop, "y"+strconv.Itoa(i))
 		}
 
 		result := []map[string]string{}
@@ -102,13 +102,9 @@ func tmain() {
 			} else {
 				fmt.Println("fetch " + url)
 			}
-			//e = util.SaveToFile(tresult+"/"+mark+".html", body)
-			//if e != nil {
-			//	fmt.Println(e.Error())
-			//}
 			l, t := parset(body)
 			fmt.Printf("%s:total:%s\n", pp, t)
-			total, e := util.SI(t)
+			total, e := strconv.Atoi(t)
 			if e != nil {
 				fmt.Println(e.Error())
 				continue
@@ -120,7 +116,7 @@ func tmain() {
 			urls = append(urls, l...)
 			page := int(math.Ceil(float64(total) / 20.0))
 			for i := 2; i <= page; i++ {
-				url := "http://zdb.pedaily.cn/company/" + mark + "/vc/" + pp + "/" + util.IS(i)
+				url := "http://zdb.pedaily.cn/company/" + mark + "/vc/" + pp + "/" + strconv.Itoa(i)
 				body, e = fetchpage(url)
 				if e != nil {
 					fmt.Println(e.Error())
@@ -139,10 +135,10 @@ func tmain() {
 		//fmt.Printf("%#v\n", urls)
 		for _, url := range urls {
 			body := []byte("")
-			var e error = nil
-			keep := traw + "/" + util.Md5(url) + ".html"
-			if util.FileExist(keep) {
-				body, e = util.ReadfromFile(keep)
+			var e error
+			keep := traw + "/" + com.Md5(url) + ".html"
+			if _, err := os.Stat(keep); os.IsExist(err) {
+				body, e = ioutil.ReadFile(keep)
 			} else {
 				body, e = fetchpage(url)
 			}
@@ -152,7 +148,7 @@ func tmain() {
 			} else {
 				fmt.Println("fetch " + url)
 			}
-			util.SaveToFile(keep, []byte(body))
+			ioutil.WriteFile(keep, []byte(body), os.ModePerm)
 			dududu := parsetouzi(body)
 			dududu["url"] = url
 			result = append(result, dududu)
@@ -167,7 +163,7 @@ func tmain() {
 			s = append(s, jinhan["url"]+","+jinhan["name"]+","+jinhan["rf"]+","+jinhan["tf"]+","+jinhan["money"]+","+jinhan["date"]+","+jinhan["times"]+","+jinhan["han"]+","+jinhan["desc"])
 		}
 
-		util.SaveToFile(tresult+"/"+mark+".csv", []byte(strings.Join(s, "\n")))
+		ioutil.WriteFile(tresult+"/"+mark+".csv", []byte(strings.Join(s, "\n")), os.ModePerm)
 	}
 }
 

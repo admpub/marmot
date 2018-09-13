@@ -1,4 +1,4 @@
-// 
+//
 // 	Copyright 2017 by marmot author: gdccmcm14@live.com.
 // 	Licensed under the Apache License, Version 2.0 (the "License");
 // 	you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@ package miner
 
 import (
 	"context"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
-
-	"github.com/hunterhug/parrot/util"
 )
 
 // Worker is the main object to sent http request and return result of response
@@ -83,9 +82,9 @@ func SetCookie(v string) *Worker {
 	return DefaultWorker.SetCookie(v)
 }
 
-// Set Cookie by file.
+// SetCookieByFile Set Cookie by file.
 func (worker *Worker) SetCookieByFile(file string) (*Worker, error) {
-	haha, err := util.ReadfromFile(file)
+	haha, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
@@ -101,13 +100,13 @@ func SetCookieByFile(file string) (*Worker, error) {
 	return DefaultWorker.SetCookieByFile(file)
 }
 
-func (worker *Worker) SetUa(ua string) *Worker {
+func (worker *Worker) SetUserAgent(ua string) *Worker {
 	worker.Header.Set("User-Agent", ua)
 	return worker
 }
 
-func SetUa(ua string) *Worker {
-	return DefaultWorker.SetUa(ua)
+func SetUserAgent(ua string) *Worker {
+	return DefaultWorker.SetUserAgent(ua)
 }
 
 func (worker *Worker) SetRefer(refer string) *Worker {
@@ -124,8 +123,8 @@ func (worker *Worker) SetHost(host string) *Worker {
 	return worker
 }
 
-// SetUrl, at the same time SetHost
-func (worker *Worker) SetUrl(url string) *Worker {
+// SetURL, at the same time SetHost
+func (worker *Worker) SetURL(url string) *Worker {
 	worker.Url = url
 	//https://www.zhihu.com/people/
 	temp := strings.Split(url, "//")
@@ -135,8 +134,8 @@ func (worker *Worker) SetUrl(url string) *Worker {
 	return worker
 }
 
-func SetUrl(url string) *Worker {
-	return DefaultWorker.SetUrl(url)
+func SetURL(url string) *Worker {
+	return DefaultWorker.SetURL(url)
 }
 
 func (worker *Worker) SetFileInfo(fileName, fileFormName string) *Worker {
@@ -151,27 +150,10 @@ func SetFileInfo(fileName, fileFormName string) *Worker {
 
 func (worker *Worker) SetMethod(method string) *Worker {
 	temp := GET
-	switch strings.ToUpper(method) {
-	case GET:
-		temp = GET
-	case POST:
-		temp = POST
-	case POSTFILE:
-		temp = POSTFILE
-	case POSTJSON:
-		temp = POSTJSON
-	case POSTXML:
-		temp = POSTXML
-	case PUT:
-		temp = PUT
-	case PUTFILE:
-		temp = PUTFILE
-	case PUTJSON:
-		temp = PUTJSON
-	case PUTXML:
-		temp = PUTXML
-	case DELETE:
-		temp = DELETE
+	v := strings.ToUpper(method)
+	switch v {
+	case GET, POST, POSTFILE, POSTJSON, POSTXML, PUT, PUTFILE, PUTJSON, PUTXML, DELETE:
+		temp = v
 	default:
 		temp = OTHER
 	}
@@ -195,13 +177,13 @@ func SetWaitTime(num int) *Worker {
 	return DefaultWorker.SetWaitTime(num)
 }
 
-func (worker *Worker) SetBData(data []byte) *Worker {
+func (worker *Worker) SetBin(data []byte) *Worker {
 	worker.BData = data
 	return worker
 }
 
-func SetBData(data []byte) *Worker {
-	return DefaultWorker.SetBData(data)
+func SetBin(data []byte) *Worker {
+	return DefaultWorker.SetBin(data)
 }
 
 func (worker *Worker) SetForm(form url.Values) *Worker {

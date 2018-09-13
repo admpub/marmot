@@ -1,4 +1,4 @@
-// 
+//
 // 	Copyright 2017 by marmot author: gdccmcm14@live.com.
 // 	Licensed under the Apache License, Version 2.0 (the "License");
 // 	you may not use this file except in compliance with the License.
@@ -24,13 +24,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hunterhug/marmot/expert"
-	"github.com/hunterhug/marmot/miner"
+	"github.com/admpub/marmot/expert"
+	"github.com/admpub/marmot/miner"
 )
-
-func init() {
-	miner.SetLogLevel(miner.DEBUG)
-}
 
 func main() {
 	// You can use a lot of proxy ip such "https/http/socks5"
@@ -44,7 +40,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	body, err := worker.SetUa(miner.RandomUa()).SetUrl(url).SetMethod(miner.GET).Go()
+	body, err := worker.SetUserAgent(miner.RandomUserAgent()).SetURL(url).SetMethod(miner.GET).Go()
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {

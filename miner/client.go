@@ -1,4 +1,4 @@
-// 
+//
 // 	Copyright 2017 by marmot author: gdccmcm14@live.com.
 // 	Licensed under the Apache License, Version 2.0 (the "License");
 // 	you may not use this file except in compliance with the License.
@@ -19,12 +19,13 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"strings"
+	"time"
 
-	"github.com/hunterhug/parrot/util"
-	"golang.org/x/net/proxy" // see https://github.com/golang/net
+	"github.com/admpub/log"
+	"golang.org/x/net/proxy"
 )
 
-// Cookie record Jar
+// NewJar Cookie record Jar
 func NewJar() *cookiejar.Jar {
 	cookieJar, _ := cookiejar.New(nil)
 	return cookieJar
@@ -35,7 +36,7 @@ var (
 	// Save Cookie, No timeout!
 	Client = &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			Logger.Debugf("[GoWorker] Redirect:%v", req.URL)
+			log.Debugf("[GoWorker] Redirect:%v", req.URL)
 			return nil
 		},
 		Jar: NewJar(),
@@ -44,16 +45,16 @@ var (
 	// Not Save Cookie
 	NoCookieClient = &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			Logger.Debugf("[GoWorker] Redirect:%v", req.URL)
+			log.Debugf("[GoWorker] Redirect:%v", req.URL)
 			return nil
 		},
 	}
 )
 
-// New a Proxy client, Default save cookie, Can timeout
+// NewProxyClient New a Proxy client, Default save cookie, Can timeout
 // We should support some proxy way such as http(s) or socks
 func NewProxyClient(proxystring string) (*http.Client, error) {
-	proxyUrl, err := url.Parse(proxystring)
+	proxyURL, err := url.Parse(proxystring)
 	if err != nil {
 		return nil, err
 	}
@@ -68,10 +69,10 @@ func NewProxyClient(proxystring string) (*http.Client, error) {
 	// socks5://
 	switch prefix {
 	case "http", "https":
-		httpTransport.Proxy = http.ProxyURL(proxyUrl)
+		httpTransport.Proxy = http.ProxyURL(proxyURL)
 	case "socks5":
 		// create a socks5 dialer
-		dialer, err := proxy.FromURL(proxyUrl, proxy.Direct)
+		dialer, err := proxy.FromURL(proxyURL, proxy.Direct)
 		if err != nil {
 			return nil, err
 		}
@@ -84,7 +85,7 @@ func NewProxyClient(proxystring string) (*http.Client, error) {
 	client := &http.Client{
 		// Allow redirect
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			Logger.Debugf("[GoWorker] Redirect:%v", req.URL)
+			log.Debugf("[GoWorker] Redirect:%v", req.URL)
 			return nil
 		},
 		// Allow proxy: http, https, socks5
@@ -92,21 +93,21 @@ func NewProxyClient(proxystring string) (*http.Client, error) {
 		// Allow keep cookie
 		Jar: NewJar(),
 		// Allow Timeout
-		Timeout: util.Second(DefaultTimeOut),
+		Timeout: time.Second * time.Duration(DefaultTimeOut),
 	}
 	return client, nil
 }
 
-// New a client, diff from proxy client
+// NewClient New a client, diff from proxy client
 func NewClient() (*http.Client, error) {
 	client := &http.Client{
 		// Allow redirect
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			Logger.Debugf("[GoWorker] Redirect:%v", req.URL)
+			log.Debugf("[GoWorker] Redirect:%v", req.URL)
 			return nil
 		},
 		Jar:     NewJar(),
-		Timeout: util.Second(DefaultTimeOut),
+		Timeout: time.Second * time.Duration(DefaultTimeOut),
 	}
 	return client, nil
 }

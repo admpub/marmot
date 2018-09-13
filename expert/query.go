@@ -1,4 +1,4 @@
-// 
+//
 // 	Copyright 2017 by marmot author: gdccmcm14@live.com.
 // 	Licensed under the Apache License, Version 2.0 (the "License");
 // 	you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import (
 	"github.com/PuerkitoBio/goquery" // please include by yourself
 )
 
+var imgSrcExp = regexp.MustCompile(`(?i)src\s*=\s*["'](http[s]?:\/\/.*?\.(jpg|jpeg|png|gif))["']`)
+
 func QueryBytes(content []byte) (*goquery.Document, error) {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(content)))
 	return doc, err
@@ -34,8 +36,7 @@ func QueryString(content string) (*goquery.Document, error) {
 // Find All picture. Must prefix with http(s)
 func FindPicture(s string) []string {
 	picList := make([]string, 0)
-	re, _ := regexp.Compile(`src\s*=\s*["'](http[s]?:\/\/.*?\.(jpg|jpeg|png|gif))["']`)
-	output := re.FindAllStringSubmatch(s, -1)
+	output := imgSrcExp.FindAllStringSubmatch(s, -1)
 	for _, o := range output {
 		picList = append(picList, o[1])
 	}

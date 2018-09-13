@@ -4,12 +4,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/hunterhug/marmot/miner"
+
+	"github.com/admpub/marmot/miner"
 )
 
-func postFile(filename string, targetUrl string) {
+func PostFile(filename string, targetUrl string) {
 	worker, _ := miner.New(nil)
-	result, err := worker.SetUrl(targetUrl).SetBData([]byte("dddd")).SetFileInfo(filename+".xxxx", "uploadfile").PostFILE()
+	result, err := worker.SetURL(targetUrl).SetBin([]byte("dddd")).SetFileInfo(filename+".xxxx", "uploadfile").PostFile()
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -21,5 +22,5 @@ func postFile(filename string, targetUrl string) {
 func main() {
 	target_url := "http://127.0.0.1:1789/upload"
 	filename := "./doc.go"
-	postFile(filename, target_url)
+	PostFile(filename, target_url)
 }

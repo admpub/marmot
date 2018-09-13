@@ -1,4 +1,4 @@
-// 
+//
 // 	Copyright 2017 by marmot author: gdccmcm14@live.com.
 // 	Licensed under the Apache License, Version 2.0 (the "License");
 // 	you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/hunterhug/marmot/miner"
-	"github.com/hunterhug/parrot/util"
+	"github.com/admpub/marmot/miner"
+	"github.com/admpub/marmot/tool"
 )
 
 // Open http://music.163.com/#/playlist?id=145258012
@@ -41,7 +41,7 @@ var Refer string
 var Sp, _ = miner.New(nil)
 
 func init() {
-	Sp.SetUa(miner.RandomUa())
+	Sp.SetUserAgent(miner.RandomUserAgent())
 	fmt.Println(`
 	----------
 	地址类似：http://music.163.com/#/playlist?id=145258012
@@ -53,7 +53,7 @@ func init() {
 func main() {
 	M := ""
 	for M == "" {
-		M = util.Input("输入网易云链接：", "")
+		M = tool.Input("输入网易云链接：", "")
 	}
 	fmt.Println("开始欣赏： " + M)
 
@@ -68,11 +68,11 @@ func main() {
 		return
 	}
 
-	dir, _ := util.GetCurrentPath()
+	dir, _ := os.Getwd()
 
 	dir = filepath.Join(dir, "songs_dir")
 
-	err = util.MakeDir(dir)
+	err = os.MkdirAll(dir, os.ModePerm)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -154,7 +154,7 @@ func main() {
 
 			filename := filepath.Join(dir, songname+"-"+artistName+".flac")
 			filenametemp := filepath.Join(dir, songname+"-"+artistName+".flacxx")
-			if util.FileExist(filename) {
+			if _, err := os.Stat(filename); os.IsExist(err) {
 				continue
 			}
 			waitGroup.Add(1)
@@ -174,12 +174,12 @@ func main() {
 					fmt.Println("保存临时音乐文件时出错：", err)
 					return
 				} else {
-					errr := util.Rename(filenametemp, filename)
+					errr := os.Rename(filenametemp, filename)
 					if errr != nil {
 						fmt.Println("临时文件重命名失败:" + filenametemp)
 					}
 				}
-				fmt.Println(songname, "下载完成,文件大小：", fmt.Sprintf("%.2f", (float64(written) / (1024 * 1024))), "MB")
+				fmt.Println(songname, "下载完成,文件大小：", fmt.Sprintf("%.2f", (float64(written)/(1024*1024))), "MB")
 			}()
 
 		}
@@ -204,7 +204,7 @@ func DownloadString(remoteUrl string, queryValues url.Values) (body []byte, err 
 		uri.RawQuery = queryValues.Encode()
 	}
 	url := uri.String()
-	Sp.SetUrl(url)
+	Sp.SetURL(url)
 	Sp.SetRefer(Refer)
 	response, err := Sp.Get()
 	if err != nil {

@@ -1,4 +1,4 @@
-// 
+//
 // 	Copyright 2017 by marmot author: gdccmcm14@live.com.
 // 	Licensed under the Apache License, Version 2.0 (the "License");
 // 	you may not use this file except in compliance with the License.
@@ -37,23 +37,15 @@ const (
 	HTTPJSONContentType = "application/json"
 	HTTPXMLContentType  = "text/xml"
 	HTTPFILEContentType = "multipart/form-data"
-
-	// Log mark
-	CRITICAL = "CRITICAL"
-	ERROR    = "ERROR"
-	WARNING  = "WARNING"
-	NOTICE   = "NOTICE"
-	INFO     = "INFO"
-	DEBUG    = "DEBUG"
 )
 
 var (
 	// Browser User-Agent, Our default Http ua header!
-	ourloveUa = "Marmot+hunterhug"
+	defaultUserAgent = "Marmot"
 
 	DefaultHeader = map[string][]string{
 		"User-Agent": {
-			ourloveUa,
+			defaultUserAgent,
 		},
 	}
 
@@ -100,7 +92,7 @@ func CloneHeader(h map[string][]string) map[string][]string {
 	}
 
 	if len(h["User-Agent"]) == 0 {
-		h["User-Agent"] = []string{ourloveUa}
+		h["User-Agent"] = []string{defaultUserAgent}
 	}
 	return CopyM(h)
 }
