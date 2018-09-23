@@ -99,7 +99,7 @@ func NewProxyClient(proxystring string) (*http.Client, error) {
 }
 
 // NewClient New a client, diff from proxy client
-func NewClient() (*http.Client, error) {
+func NewClient(timeout ...time.Duration) (*http.Client, error) {
 	client := &http.Client{
 		// Allow redirect
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -108,6 +108,9 @@ func NewClient() (*http.Client, error) {
 		},
 		Jar:     NewJar(),
 		Timeout: time.Second * time.Duration(DefaultTimeOut),
+	}
+	if len(timeout) > 0 {
+		client.Timeout = timeout[0]
 	}
 	return client, nil
 }

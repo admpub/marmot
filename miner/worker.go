@@ -31,7 +31,7 @@ import (
 // NewWorker New a worker, if ipstring is a proxy address, New a proxy client.
 // Proxy address such as:
 // 		http://[user]:[password@]ip:port, [] stand it can choose or not. case: socks5://127.0.0.1:1080
-func NewWorker(ipstring interface{}) (*Worker, error) {
+func NewWorker(ipstring interface{}, timeout ...time.Duration) (*Worker, error) {
 	worker := new(Worker)
 	worker.Header = http.Header{}
 	worker.Data = url.Values{}
@@ -42,15 +42,15 @@ func NewWorker(ipstring interface{}) (*Worker, error) {
 		worker.Ipstring = ipstring.(string)
 		return worker, err
 	}
-	client, err := NewClient()
+	client, err := NewClient(timeout...)
 	worker.Client = client
 	worker.Ipstring = "localhost"
 	return worker, err
 }
 
 // New Alias Name for NewWorker
-func New(ipstring interface{}) (*Worker, error) {
-	return NewWorker(ipstring)
+func New(ipstring interface{}, timeout ...time.Duration) (*Worker, error) {
+	return NewWorker(ipstring, timeout...)
 }
 
 // NewWorkerByClient New Worker by Your Client
@@ -61,7 +61,7 @@ func NewWorkerByClient(client *http.Client) *Worker {
 	worker.BData = []byte{}
 
 	// API must can set timeout
-	if DefaultTimeOut != 0 {
+	if DefaultTimeOut != 0 && client.Timeout < 1 {
 		client.Timeout = time.Second * time.Duration(DefaultTimeOut)
 	}
 	worker.Client = client
