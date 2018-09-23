@@ -29,7 +29,7 @@ func Wait(waittime int) {
 	}
 	// debug
 	log.Debugf("Wait %d Second.", waittime)
-	time.Sleep(time.Duration(waittime))
+	time.Sleep(time.Duration(waittime) * time.Second)
 }
 
 // CopyM Header map[string][]string ,can use to copy a http header, so that they are not effect each other
