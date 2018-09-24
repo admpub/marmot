@@ -59,7 +59,7 @@ func NewProxyClient(proxystring string) (*http.Client, error) {
 		return nil, err
 	}
 
-	prefix := strings.Split(proxystring, ":")[0]
+	prefix := strings.SplitN(proxystring, ":", 2)[0]
 
 	// setup a http transport
 	httpTransport := &http.Transport{}
