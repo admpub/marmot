@@ -31,7 +31,7 @@ type Worker struct {
 	Data         url.Values     // Sent by form data
 	FileName     string         // FileName which sent to remote
 	FileFormName string         // File Form Name which sent to remote
-	BData        []byte         // Sent by binary data, can together with File
+	BinaryData   []byte         // Sent by binary data, can together with File
 	Wait         int            // Wait Time
 	Client       *http.Client   // Our Client
 	Request      *http.Request  // Debug
@@ -50,16 +50,24 @@ type Worker struct {
 	BeforeAction func(context.Context, *Worker)
 	AfterAction  func(context.Context, *Worker)
 
+	// ResponseCharset is the character encoding of the response body.
+	// Leave it blank to allow automatic character encoding of the response body.
+	ResponseCharset string
+
+	// DetectCharset can enable character encoding detection for non-utf8 response bodies
+	// without explicit charset declaration. This feature uses https://github.com/webx-top/chardet
+	DetectCharset bool
+
 	mux sync.RWMutex // Lock, execute concurrently please use worker Pool!
 }
 
-// Java Bean Chain pattern
+// SetHeader Java Bean Chain pattern
 func (worker *Worker) SetHeader(header http.Header) *Worker {
 	worker.Header = header
 	return worker
 }
 
-// Default Worker SetHeader!
+// SetHeader Default Worker SetHeader!
 func SetHeader(header http.Header) *Worker {
 	return DefaultWorker.SetHeader(header)
 }
@@ -71,6 +79,24 @@ func (worker *Worker) SetHeaderParm(k, v string) *Worker {
 
 func SetHeaderParm(k, v string) *Worker {
 	return DefaultWorker.SetHeaderParm(k, v)
+}
+
+func (worker *Worker) SetDetectCharset(on bool) *Worker {
+	worker.DetectCharset = on
+	return worker
+}
+
+func SetDetectCharset(on bool) *Worker {
+	return DefaultWorker.SetDetectCharset(on)
+}
+
+func (worker *Worker) SetResponseCharset(charset string) *Worker {
+	worker.ResponseCharset = charset
+	return worker
+}
+
+func SetResponseCharset(charset string) *Worker {
+	return DefaultWorker.SetResponseCharset(charset)
 }
 
 func (worker *Worker) SetCookie(v string) *Worker {
@@ -123,7 +149,7 @@ func (worker *Worker) SetHost(host string) *Worker {
 	return worker
 }
 
-// SetURL, at the same time SetHost
+// SetURL at the same time SetHost
 func (worker *Worker) SetURL(url string) *Worker {
 	worker.Url = url
 	//https://www.zhihu.com/people/
@@ -177,13 +203,13 @@ func SetWaitTime(num int) *Worker {
 	return DefaultWorker.SetWaitTime(num)
 }
 
-func (worker *Worker) SetBin(data []byte) *Worker {
-	worker.BData = data
+func (worker *Worker) SetBinary(data []byte) *Worker {
+	worker.BinaryData = data
 	return worker
 }
 
-func SetBin(data []byte) *Worker {
-	return DefaultWorker.SetBin(data)
+func SetBinary(data []byte) *Worker {
+	return DefaultWorker.SetBinary(data)
 }
 
 func (worker *Worker) SetForm(form url.Values) *Worker {
@@ -235,7 +261,7 @@ func SetAfterAction(fc func(context.Context, *Worker)) *Worker {
 // Clear data we sent
 func (worker *Worker) Clear() *Worker {
 	worker.Data = url.Values{}
-	worker.BData = []byte{}
+	worker.BinaryData = []byte{}
 	return worker
 }
 
@@ -247,7 +273,7 @@ func Clear() *Worker {
 func (worker *Worker) ClearAll() *Worker {
 	worker.Header = http.Header{}
 	worker.Data = url.Values{}
-	worker.BData = []byte{}
+	worker.BinaryData = []byte{}
 	return worker
 }
 
@@ -255,7 +281,7 @@ func ClearAll() *Worker {
 	return DefaultWorker.ClearAll()
 }
 
-// Clear Cookie
+// ClearCookie Clear Cookie
 func (worker *Worker) ClearCookie() *Worker {
 	worker.Header.Del("Cookie")
 	return worker
@@ -265,7 +291,7 @@ func ClearCookie() *Worker {
 	return DefaultWorker.ClearCookie()
 }
 
-// Get Cookies
+// GetCookies Get Cookies
 func (worker *Worker) GetCookies() []*http.Cookie {
 	if worker.Response != nil {
 		return worker.Response.Cookies()
@@ -276,8 +302,4 @@ func (worker *Worker) GetCookies() []*http.Cookie {
 
 func GetCookies() []*http.Cookie {
 	return DefaultWorker.GetCookies()
-}
-
-// Deprecated
-func (worker *Worker) NewHeader(ua interface{}, host string, refer interface{}) {
 }

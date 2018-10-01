@@ -14,12 +14,16 @@
 package miner
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/admpub/log"
+	"github.com/webx-top/chardet"
+	"golang.org/x/net/html/charset"
 )
 
 // Wait some secord
@@ -61,4 +65,43 @@ func OutputMaps(info string, args map[string][]string) {
 		s = s + fmt.Sprintf("%-25s| %-6s\n", k, strings.Join(v, "||"))
 	}
 	log.Debugf("[GoWorker] %s", s)
+}
+
+func FixCharset(body []byte, extra interface{}, detectCharset bool, defaultEncoding ...string) ([]byte, error) {
+
+	if len(defaultEncoding) > 0 && len(defaultEncoding[0]) > 0 {
+		return encodeBytes(body, "text/plain; charset="+defaultEncoding[0])
+	}
+
+	var contentType string
+	if resp, ok := extra.(*http.Response); ok {
+		contentType = resp.Header.Get(`Content-Type`)
+	} else {
+		contentType = fmt.Sprint(extra)
+	}
+
+	contentType = strings.ToLower(contentType)
+	if !strings.Contains(contentType, "charset") {
+		if !detectCharset {
+			return body, nil
+		}
+		d := chardet.NewTextDetector()
+		r, err := d.DetectBest(body)
+		if err != nil {
+			return body, err
+		}
+		contentType = "text/plain; charset=" + r.Charset
+	}
+	if strings.Contains(contentType, "utf-8") || strings.Contains(contentType, "utf8") {
+		return body, nil
+	}
+	return encodeBytes(body, contentType)
+}
+
+func encodeBytes(b []byte, contentType string) ([]byte, error) {
+	r, err := charset.NewReader(bytes.NewReader(b), contentType)
+	if err != nil {
+		return nil, err
+	}
+	return ioutil.ReadAll(r)
 }

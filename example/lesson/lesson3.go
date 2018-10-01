@@ -49,16 +49,16 @@ func main() {
 	worker.SetUserAgent(miner.RandomUserAgent())  // optional, browser user agent: IE/Firefox...
 	worker.SetRefer("https://www.whitehouse.gov") // optional, url refer
 	worker.SetHeaderParm("diyheader", "lenggirl") // optional, some other diy http header
-	//worker.SetBin([]byte("file data"))    // optional, if you want post JSON data or upload file
+	//worker.SetBinary([]byte("file data"))    // optional, if you want post JSON data or upload file
 	//worker.SetFormParm("username","jinhan") // optional: if you want post form
 	//worker.SetFormParm("password","123")
 
 	// 5: Start Run
 	//worker.Get()             // default GET
 	//worker.Post()            // POST form request data, data can fill by SetFormParm()
-	//worker.PostJSON()        // POST JSON dara, use SetBin()
-	//worker.PostXML()         // POST XML, use SetBin()
-	//worker.PostFile()        // POST to Upload File, data in SetBin() too
+	//worker.PostJSON()        // POST JSON dara, use SetBinary()
+	//worker.PostXML()         // POST XML, use SetBinary()
+	//worker.PostFile()        // POST to Upload File, data in SetBinary() too
 	//worker.OtherGo("OPTIONS", "application/x-www-form-urlencoded") // Other http method, Such as OPTIONS etcd
 	body, err := worker.Go() // if you use SetMethod(), otherwise equal to Get()
 	if err != nil {
@@ -69,7 +69,7 @@ func main() {
 
 	log.Debugf("%#v", worker.GetCookies) // if you not set log as debug, it will not appear
 
-	// You must Clear it! If you want to POST Data by SetFormParm()/SetBin() again
+	// You must Clear it! If you want to POST Data by SetFormParm()/SetBinary() again
 	// After get the return data by post data, you can clear the data you fill
 	worker.Clear()
 	//worker.ClearAll() // you can also want to clear all, include http header you set

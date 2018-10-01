@@ -18,12 +18,11 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
-
-	"mime/multipart"
 
 	"github.com/admpub/log"
 )
@@ -35,7 +34,7 @@ func NewWorker(ipstring interface{}, timeout ...time.Duration) (*Worker, error) 
 	worker := new(Worker)
 	worker.Header = http.Header{}
 	worker.Data = url.Values{}
-	worker.BData = []byte{}
+	worker.BinaryData = []byte{}
 	if ipstring != nil {
 		client, err := NewProxyClient(strings.ToLower(ipstring.(string)))
 		worker.Client = client
@@ -58,7 +57,7 @@ func NewWorkerByClient(client *http.Client) *Worker {
 	worker := new(Worker)
 	worker.Header = http.Header{}
 	worker.Data = url.Values{}
-	worker.BData = []byte{}
+	worker.BinaryData = []byte{}
 
 	// API must can set timeout
 	if DefaultTimeOut != 0 && client.Timeout < 1 {
@@ -149,10 +148,10 @@ func (worker *Worker) sent(method, contentType string, binary bool) (body []byte
 	// New a Request
 	var request = &http.Request{}
 
-	// If binary parm value is true and BData is not empty
+	// If binary parm value is true and BinaryData is not empty
 	// suit for POSTJSON(), PostFile()
-	if len(worker.BData) != 0 && binary {
-		pr := ioutil.NopCloser(bytes.NewReader(worker.BData))
+	if len(worker.BinaryData) != 0 && binary {
+		pr := ioutil.NopCloser(bytes.NewReader(worker.BinaryData))
 		request, _ = http.NewRequest(method, worker.Url, pr)
 	} else if len(worker.Data) != 0 { // such POST() from table form
 		pr := ioutil.NopCloser(strings.NewReader(worker.Data.Encode()))
@@ -207,6 +206,12 @@ func (worker *Worker) sent(method, contentType string, binary bool) (body []byte
 
 	// Read output
 	body, e = ioutil.ReadAll(response.Body)
+	if e == nil {
+		body, e = FixCharset(body, response, worker.DetectCharset, worker.ResponseCharset)
+	}
+	if e != nil {
+		log.Error(e)
+	}
 	worker.Raw = body
 
 	worker.UrlStatuscode = response.StatusCode
@@ -217,6 +222,7 @@ func (worker *Worker) sent(method, contentType string, binary bool) (body []byte
 	// After action
 	if worker.AfterAction != nil {
 		worker.AfterAction(worker.Ctx, worker)
+		body = worker.Raw
 	}
 	return
 }
@@ -260,8 +266,8 @@ func (worker *Worker) sentFile(method string) ([]byte, error) {
 	if worker.FileName == "" || worker.FileFormName == "" {
 		return nil, errors.New("fileName or fileFormName must not empty")
 	}
-	if len(worker.BData) == 0 {
-		return nil, errors.New("BData must not empty")
+	if len(worker.BinaryData) == 0 {
+		return nil, errors.New("BinaryData must not empty")
 	}
 
 	bodyBuf := &bytes.Buffer{}
@@ -272,11 +278,11 @@ func (worker *Worker) sentFile(method string) ([]byte, error) {
 		return nil, err
 	}
 
-	fileWriter.Write(worker.BData)
+	fileWriter.Write(worker.BinaryData)
 	contentType := bodyWriter.FormDataContentType()
 	bodyWriter.Close()
 
-	worker.SetBin(bodyBuf.Bytes())
+	worker.SetBinary(bodyBuf.Bytes())
 
 	return worker.sent(method, contentType, true)
 }

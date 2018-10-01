@@ -28,7 +28,7 @@ func init() {
 	worker := new(Worker)
 	worker.Header = http.Header{}
 	worker.Data = url.Values{}
-	worker.BData = []byte{}
+	worker.BinaryData = []byte{}
 	worker.Client = Client
 
 	// Global Worker!

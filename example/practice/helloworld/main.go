@@ -46,7 +46,7 @@ func main() {
 	worker.SetUserAgent(miner.RandomUserAgent())  //设置随机浏览器标志
 	worker.SetRefer("http://www.lenggirl.com")    // 设置Refer头
 	worker.SetHeaderParm("diyheader", "lenggirl") // 自定义头部
-	//worker.SetBin([]byte("file data")) // 如果你要提交JSON数据/上传文件
+	//worker.SetBinary([]byte("file data")) // 如果你要提交JSON数据/上传文件
 	//worker.SetFormParm("username","jinhan") // 提交表单
 	//worker.SetFormParm("password","123")
 

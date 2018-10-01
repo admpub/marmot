@@ -10,7 +10,7 @@ import (
 
 func PostFile(filename string, targetUrl string) {
 	worker, _ := miner.New(nil)
-	result, err := worker.SetURL(targetUrl).SetBin([]byte("dddd")).SetFileInfo(filename+".xxxx", "uploadfile").PostFile()
+	result, err := worker.SetURL(targetUrl).SetBinary([]byte("dddd")).SetFileInfo(filename+".xxxx", "uploadfile").PostFile()
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {

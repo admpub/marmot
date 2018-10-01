@@ -144,16 +144,16 @@ func main() {
 	worker.SetUserAgent(miner.RandomUserAgent())                // optional, browser user agent: IE/Firefox...
 	worker.SetRefer("https://www.whitehouse.gov") // optional, url refer
 	worker.SetHeaderParm("diyheader", "lenggirl") // optional, some other diy http header
-	//worker.SetBin([]byte("file data"))    // optional, if you want post JSON data or upload file
+	//worker.SetBinary([]byte("file data"))    // optional, if you want post JSON data or upload file
 	//worker.SetFormParm("username","jinhan") // optional: if you want post form
 	//worker.SetFormParm("password","123")
 
 	// 5: Start Run
 	//worker.Get()             // default GET
 	//worker.Post()            // POST form request data, data can fill by SetFormParm()
-	//worker.PostJSON()        // POST JSON dara, use SetBin()
-	//worker.PostXML()         // POST XML, use SetBin()
-	//worker.PostFile()        // POST to Upload File, data in SetBin() too
+	//worker.PostJSON()        // POST JSON dara, use SetBinary()
+	//worker.PostXML()         // POST XML, use SetBinary()
+	//worker.PostFile()        // POST to Upload File, data in SetBinary() too
 	//worker.OtherGo("OPTIONS", "application/x-www-form-urlencoded") // Other http method, Such as OPTIONS etcd
 	body, err := worker.Go() // if you use SetMethod(), otherwise equal to Get()
 	if err != nil {
@@ -164,7 +164,7 @@ func main() {
 
 	log.Debugf("%#v", worker.GetCookies) // if you not set log as debug, it will not appear
 
-	// You must Clear it! If you want to POST Data by SetFormParm()/SetBin() again
+	// You must Clear it! If you want to POST Data by SetFormParm()/SetBinary() again
 	// After get the return data by post data, you can clear the data you fill
 	worker.Clear()
 	//worker.ClearAll() // you can also want to clear all, include http header you set
@@ -278,7 +278,7 @@ Camouflage our worker:
 4. `worker.SetUserAgent(miner.RandomUserAgent())`                 // optional: set http browser user agent, you can see miner/config/ua.txt
 5. `worker.SetRefer("https://www.whitehouse.gov")`       // optional: set http request Refer
 6. `worker.SetHeaderParm("diyheader", "lenggirl")` // optional: set http diy header
-7. `worker.SetBin([]byte("file data"))` // optional: set binary data for post or put
+7. `worker.SetBinary([]byte("file data"))` // optional: set binary data for post or put
 8. `worker.SetFormParm("username","jinhan")` // optional: set form data for post or put 
 9. `worker.SetCookie("xx=dddd")` // optional: you can set a init cookie, some website you can login and F12 copy the cookie
 10. `worker.SetCookieByFile("/root/cookie.txt")` // optional: set cookie which store in a file
@@ -290,9 +290,9 @@ Run our worker:
 1. `body, err := worker.Go()` // if you use SetMethod(), auto use following ways, otherwise use Get()
 2. `body, err := worker.Get()` // default
 3. `body, err := worker.Post()` // post form request, data fill by SetFormParm()
-4. `body, err := worker.PostJSON()` // post JSON request, data fill by SetBin()
-5. `body, err := worker.PostXML()` // post XML request, data fill by SetBin()
-6. `body, err := worker.PostFile()` // upload file, data fill by SetBin(), and should set SetFileInfo(fileName, fileFormName string)
+4. `body, err := worker.PostJSON()` // post JSON request, data fill by SetBinary()
+5. `body, err := worker.PostXML()` // post XML request, data fill by SetBinary()
+6. `body, err := worker.PostFile()` // upload file, data fill by SetBinary(), and should set SetFileInfo(fileName, fileFormName string)
 7. `body, err := worker.Delete()` // you know!
 8. `body, err := worker.Put()` // ones http method...
 9. `body, err := worker.PutJSON()` // put JSON request
