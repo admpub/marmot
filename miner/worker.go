@@ -214,7 +214,7 @@ func (worker *Worker) sent(method, contentType string, binary bool) (body []byte
 	}
 	worker.Raw = body
 
-	worker.UrlStatuscode = response.StatusCode
+	worker.Statuscode = response.StatusCode
 	worker.Preurl = worker.Url
 	worker.Response = response
 	worker.Fetchtimes++
@@ -306,7 +306,7 @@ func (worker *Worker) PutFile() (body []byte, e error) {
 }
 
 /*
-Other Method
+OtherGo Other Method
 
      Method         = "OPTIONS"                ; Section 9.2
                     | "GET"                    ; Section 9.3
