@@ -64,7 +64,7 @@ func OutputMaps(info string, args map[string][]string) {
 	for k, v := range args {
 		s = s + fmt.Sprintf("%-25s| %-6s\n", k, strings.Join(v, "||"))
 	}
-	log.Debugf("[GoWorker] %s", s)
+	Debugf("[GoWorker] %s", s)
 }
 
 func FixCharset(body []byte, extra interface{}, detectCharset bool, defaultEncoding ...string) ([]byte, error) {

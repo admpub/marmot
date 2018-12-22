@@ -143,21 +143,27 @@ func (worker *Worker) sent(method, contentType string, binary bool) (body []byte
 	}
 
 	// For debug
-	log.Debugf("[GoWorker] %s %s", method, worker.Url)
+	Debugf("[GoWorker] %s %s", method, worker.Url)
 
 	// New a Request
-	var request = &http.Request{}
+	var (
+		request = &http.Request{}
+		err     error
+	)
 
 	// If binary parm value is true and BinaryData is not empty
 	// suit for POSTJSON(), PostFile()
 	if len(worker.BinaryData) != 0 && binary {
-		pr := ioutil.NopCloser(bytes.NewReader(worker.BinaryData))
-		request, _ = http.NewRequest(method, worker.Url, pr)
+		contentReader := bytes.NewReader(worker.BinaryData)
+		request, err = http.NewRequest(method, worker.Url, contentReader)
 	} else if len(worker.Data) != 0 { // such POST() from table form
-		pr := ioutil.NopCloser(strings.NewReader(worker.Data.Encode()))
-		request, _ = http.NewRequest(method, worker.Url, pr)
+		contentReader := strings.NewReader(worker.Data.Encode())
+		request, err = http.NewRequest(method, worker.Url, contentReader)
 	} else {
-		request, _ = http.NewRequest(method, worker.Url, nil)
+		request, err = http.NewRequest(method, worker.Url, nil)
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	// Close avoid EOF
@@ -202,7 +208,7 @@ func (worker *Worker) sent(method, contentType string, binary bool) (body []byte
 
 	// Debug
 	OutputMaps("Response header", response.Header)
-	log.Debugf("[GoWorker] %v %s", response.Proto, response.Status)
+	Debugf("[GoWorker] %v %s", response.Proto, response.Status)
 
 	// Read output
 	body, e = ioutil.ReadAll(response.Body)

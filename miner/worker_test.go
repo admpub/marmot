@@ -14,8 +14,14 @@
 package miner
 
 import (
+	"io/ioutil"
 	"log"
+	"net/http"
+	"net/url"
 	"testing"
+
+	"github.com/admpub/gohttp"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestWorker(t *testing.T) {
@@ -53,4 +59,68 @@ func TestWorker(t *testing.T) {
 	// if filesize small than 500KB
 	err = TooSortSizes(body, 500)
 	log.Println(err.Error())
+}
+
+//var testURL = `http://127.0.0.1/ping.php`
+var testURL = `http://127.0.0.1:9998/`
+var testData = []byte(`[1,2,3,4,5]`)
+
+func postByWorker(t *testing.T) {
+	worker := NewAPI()
+	worker.SetURL(testURL)
+	body, err := worker.SetBinary(testData).PostJSON()
+	//body, err := worker.SetForm(url.Values{`data`: []string{string(testData)}}).Post()
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(t, string(testData), string(body))
+	assert.Equal(t, http.StatusOK, worker.Statuscode)
+
+	worker.SetURL(testURL + `?post=1`)
+	body, err = worker.SetForm(url.Values{`data`: []string{string(testData)}}).Post()
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(t, string(testData), string(body))
+	assert.Equal(t, http.StatusOK, worker.Statuscode)
+}
+
+func postByHTTP(t *testing.T) {
+	client := gohttp.New()
+	resp, errs := client.Post(testURL).Send(string(testData)).End()
+	if len(errs) > 0 {
+		var errStr string
+		for i, e := range errs {
+			if i > 0 {
+				errStr += ";\n"
+			}
+			errStr += e.Error()
+		}
+		panic(errStr)
+	}
+	body, _ := ioutil.ReadAll(resp.Body)
+	assert.Equal(t, string(testData), string(body))
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func server() {
+	http.HandleFunc(`/`, func(resp http.ResponseWriter, req *http.Request) {
+		var b []byte
+		req.ParseForm()
+		if req.URL.Query().Get(`post`) == `1` {
+			b = []byte(req.PostForm.Get(`data`))
+		} else {
+			b, _ = ioutil.ReadAll(req.Body)
+			req.Body.Close()
+		}
+		resp.WriteHeader(http.StatusOK)
+		resp.Write(b)
+	})
+	go http.ListenAndServe(`:9998`, nil)
+}
+
+func TestPostJSON(t *testing.T) {
+	server()
+	postByWorker(t)
+	postByHTTP(t)
 }
