@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/admpub/log"
+	"github.com/admpub/pester"
 )
 
 // NewWorker New a worker, if ipstring is a proxy address, New a proxy client.
@@ -190,9 +191,19 @@ func (worker *Worker) sent(method, contentType string, binary bool) (body []byte
 	if worker.Client == nil {
 		worker.Client = Client
 	}
-
+	var response *http.Response
 	// Do it
-	response, err := worker.Client.Do(request)
+	if worker.MaxRetries > 0 {
+        client := pester.NewExtendedClient(worker.Client)
+		client.Concurrency = 1
+        client.MaxRetries = worker.MaxRetries
+        client.Backoff = pester.ExponentialBackoff
+		client.KeepLog = true
+		client.SetOptions(worker.PesterOptions...)
+		response, err = client.Do(request)
+	} else {
+		response, err = worker.Client.Do(request)
+	}
 
 	// Close it attention response may be nil
 	if response != nil {
