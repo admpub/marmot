@@ -30,6 +30,6 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
-		fmt.Println(miner.ToString())
+		fmt.Println(miner.String())
 	}
 }

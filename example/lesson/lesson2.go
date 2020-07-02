@@ -32,6 +32,6 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	// 4.Print content equal to fmt.Println(worker.ToString())
+	// 4.Print content equal to fmt.Println(worker.String())
 	fmt.Println(string(html))
 }

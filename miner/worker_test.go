@@ -74,7 +74,7 @@ func postByWorker(t *testing.T) {
 		panic(err)
 	}
 	assert.Equal(t, string(testData), string(body))
-	assert.Equal(t, http.StatusOK, worker.Statuscode)
+	assert.Equal(t, http.StatusOK, worker.StatusCode)
 
 	worker.SetURL(testURL + `?post=1`)
 	body, err = worker.SetForm(url.Values{`data`: []string{string(testData)}}).Post()
@@ -82,7 +82,7 @@ func postByWorker(t *testing.T) {
 		panic(err)
 	}
 	assert.Equal(t, string(testData), string(body))
-	assert.Equal(t, http.StatusOK, worker.Statuscode)
+	assert.Equal(t, http.StatusOK, worker.StatusCode)
 }
 
 func postByHTTP(t *testing.T) {

@@ -54,7 +54,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
-		fmt.Println(miner.ToString())
+		fmt.Println(miner.String())
 	}
 }
 ```
@@ -100,7 +100,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	// 4.Print content equal to fmt.Println(worker.ToString())
+	// 4.Print content equal to fmt.Println(worker.String())
 	fmt.Println(string(html))
 }
 ```
@@ -307,8 +307,8 @@ Run our worker:
 Deal the return data, all data will be return as binary, You can immediately store it into a new variable:
 
 1. `fmt.Println(string(html))` // type change directly
-2. `fmt.Println(worker.ToString())` // use spider method, after http response, data will keep in the field `Raw`, just use ToString
-3. `fmt.Println(worker.JsonToString())` // some json data will include chinese and other multibyte character, such as `我爱你,我的小绵羊`,`사랑해`
+2. `fmt.Println(worker.String())` // use spider method, after http response, data will keep in the field `Raw`, just use ToString
+3. `fmt.Println(worker.JSONToString())` // some json data will include chinese and other multibyte character, such as `我爱你,我的小绵羊`,`사랑해`
 
 Attention: after every request for a url, the next request you can cover your http request header, otherwise header you set still exist,
 if just want clear post data, use `Clear()`, and want clear HTTP header too please use `ClearAll()` .

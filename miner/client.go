@@ -44,15 +44,13 @@ func NewJar() *cookiejar.Jar {
 // Default Client
 var (
 	// Save Cookie, No timeout!
-	Client = &http.Client{
-		CheckRedirect: CheckRedirect,
-		Jar:           NewJar(),
-	}
+	Client = NewClient()
 
 	// Not Save Cookie
-	NoCookieClient = &http.Client{
-		CheckRedirect: CheckRedirect,
-	}
+	NoCookieClient = NewHTTPClient(
+		httpClientOptions.Timeout(time.Second*time.Duration(DefaultTimeOut)),
+		httpClientOptions.CheckRedirect(CheckRedirect),
+	)
 )
 
 // NewProxyClient New a Proxy client, Default save cookie, Can timeout
@@ -98,7 +96,7 @@ func NewProxyClient(proxystring string, timeouts ...time.Duration) (*http.Client
 }
 
 // NewClient New a client, diff from proxy client
-func NewClient(timeouts ...time.Duration) (*http.Client, error) {
+func NewClient(timeouts ...time.Duration) *http.Client {
 	timeout := time.Second * time.Duration(DefaultTimeOut)
 	if len(timeouts) > 0 {
 		timeout = timeouts[0]
@@ -107,7 +105,7 @@ func NewClient(timeouts ...time.Duration) (*http.Client, error) {
 		httpClientOptions.Timeout(timeout),
 		httpClientOptions.CheckRedirect(CheckRedirect),
 		httpClientOptions.CookieJar(NewJar()),
-	), nil
+	)
 }
 
 // NewHTTPClient New a client
