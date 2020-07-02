@@ -57,7 +57,7 @@ func TestWorker(t *testing.T) {
 	}
 
 	// if filesize small than 500KB
-	err = TooSortSizes(body, 500)
+	err = TooShortSizes(body, 500)
 	log.Println(err.Error())
 }
 
